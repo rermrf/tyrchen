@@ -2,8 +2,15 @@
 name = "httpie"
 version = "0.1.0"
 edition = "2021"
+author = "rermrf"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow = "1.0.75"
+clap = { version = "4.4.6", features = ["derive"] }
+colored = "2.0.4"
+jsonxf = "1.1.1"
+mime = "0.3.17"
+reqwest = { version = "0.11.22", features = ["json"] }
+tokio = { version = "1.33.0", features = ["full"] }
