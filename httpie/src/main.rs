@@ -116,10 +116,12 @@ fn print_body(m: Option<Mime>, body: &String) {
         // 对于 "application/json" 我们 pretty print
         // Some(v) if v == mime::APPLICATION_JSON => {
         Some(_v) => {
+            
             println!("{}", "Body:".to_string().red());
             println!("{}", jsonxf::pretty_print(body).unwrap().cyan());
         }
-        _ => {
+        // _ => {
+        None => {
             println!("{}", "Text:".to_string().red());
             println!("{}", body);
         },
