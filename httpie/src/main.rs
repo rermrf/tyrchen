@@ -2,7 +2,9 @@ use std::{str::FromStr, collections::HashMap};
 
 use clap::{Subcommand, Parser, arg};
 use anyhow::{Result, anyhow, Ok};
-use reqwest::{Url, Client, header::{HeaderMap, self}};
+use colored::Colorize;
+use mime::Mime;
+use reqwest::{Url, Client, header::{HeaderMap, self}, Response};
 // use serde::{Serialize, Deserialize};
 
 // 定义cli主程序
@@ -32,7 +34,7 @@ struct Get{
 // get函数具体执行
 async fn get(client: Client, args: &Get) -> Result<()> {
     let resp = client.get(&args.url).send().await?;
-    println!("{}", resp.text().await?);
+    print_resp(resp).await?;
     Ok(())
 }
 
@@ -54,7 +56,7 @@ async fn post(client: Client, args: &Post) -> Result<()> {
         body.insert(pair.key.clone(), pair.value.clone());
     }
     let resp = client.post(&args.url).json(&body).send().await?;
-    println!("{}", resp.text().await?);
+    print_resp(resp).await?;
     Ok(())
 }
 
@@ -92,6 +94,57 @@ impl FromStr for KvPair {
 // 为post子命令需要的arg body添加解析函数
 fn parse_kv_pair(s: &str) -> Result<KvPair> {
     Ok(s.parse()?)
+}
+
+
+// 打印header
+fn print_header(resp: &Response) {
+    for (name, value) in resp.headers() {
+        println!("{}: {:?}", name.to_string().green(), value)
+    }
+}
+
+// 打印状态码
+fn print_status(resp: &Response) {
+    let status = format!("{:?} {}", resp.version(), resp.status()).blue();
+    println!("{}\n", status);
+}
+
+// 打印body
+fn print_body(m: Option<Mime>, body: &String) {
+    match m {
+        // 对于 "application/json" 我们 pretty print
+        // Some(v) if v == mime::APPLICATION_JSON => {
+        Some(_v) => {
+            println!("{}", "Body:".to_string().red());
+            println!("{}", jsonxf::pretty_print(body).unwrap().cyan());
+        }
+        _ => {
+            println!("{}", "Text:".to_string().red());
+            println!("{}", body);
+        },
+    }
+}
+
+
+// 打印整个Response
+async fn print_resp(resp: Response) -> Result<()> {
+    println!("{}", "Status:".to_string().red());
+    print_status(&resp);
+    println!("{}", "Header:".to_string().red());
+    print_header(&resp);
+
+    let mime = get_content_type(&resp);
+    let body = &resp.text().await?;
+    print_body(mime, &body);
+    Ok(())
+}
+
+// 将服务器返回的 content-type 解析成 Mime 类型
+fn get_content_type(resp: &Response) -> Option<Mime> {
+    resp.headers()
+    .get(header::CONTENT_TYPE)
+    .map(|v| v.to_str().unwrap().parse().unwrap())
 }
 
 #[tokio::main]
