@@ -59,8 +59,58 @@ impl From<resize::SampleFilter> for SamplingFilter {
 
 // 提供一些辅助函数， 让创建一个 spec 的过程简单一些
 impl Spec {
-    
+    pub fn new_resise_seam_carve(width: u32, height: u32) -> Self {
+        Self {
+            data: Some(spec::Data::Resize(Resize {
+                width,
+                height,
+                rtype: resize::Resizetype::SeamCarve as i32,
+                filter: resize::SampleFilter::Undefined as i32,
+            })),
+        }
+    }
+
+    pub fn new_resize(width: u32, height: u32, filter: resize::SampleFilter) -> Self {
+        Self {
+            data: Some(spec::Data::Resize(Resize {
+                width,
+                height,
+                rtype: resize::Resizetype::Normal as i32,
+                filter: filter as i32,
+            })),
+        }
+    }
+
+    pub fn new_filter(filter: filter::Filter) -> Self {
+        Self {
+            data: Some(spec::Data::Filter(Filter {
+                filter: filter as i32,
+            })),
+        }
+    }
+
+    pub fn new_watermark(x: u32, y: u32) -> Self {
+        Self {
+            data: Some(spec::Data::Watermark(Watermark { x, y }))
+         }
+    }
+
+
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use std::borrow::Borrow;
+
+    use super::*;
+
+    #[test]
+    fn encode_spec_cpuld_be_decoded() {
+        let spec1 = Spec::new_resize(600, 600, resize::SampleFilter::Undefined);
+        let spec2 = Spec::new_filter(filter::Filter::Marine);
+        let image_spec = ImageSpec::new(vec![spec1, spec2]);
+        let s: String = image_spec.borrow().into();
+        println!("{image_spec:?}");
+        println!("{}", s);
+    }
+}
