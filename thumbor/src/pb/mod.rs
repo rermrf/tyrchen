@@ -12,7 +12,7 @@ impl ImageSpec {
     }
 }
 
-// 让ImageSpec 可以生成一个字符串
+// 让ImageSpec 可以生成一个字符串 (object to string)
 impl From<&ImageSpec> for String {
     fn from(value: &ImageSpec) -> Self {
         let data = value.encode_to_vec();
@@ -21,7 +21,7 @@ impl From<&ImageSpec> for String {
     }
 }
 
-// 让 ImageSpec 可以通过一个字符串创建。比如 s.parse().unwrap()
+// 让 ImageSpec 可以通过一个字符串创建。比如 s.parse().unwrap() (string to object)
 impl TryFrom<&str> for ImageSpec {
     type Error = anyhow::Error;
 
