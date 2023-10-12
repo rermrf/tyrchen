@@ -16,5 +16,5 @@ pub trait Engine {
 // SpecTransform: 未来如果添加更多的 spec，只需要实现它即可
 pub trait SpecTransform<T> {
     // 对图片使用 op 做 transform
-    fn transform(&self, op: T);
+    fn transform(&mut self, op: T);
 }

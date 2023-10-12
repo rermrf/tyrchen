@@ -14,7 +14,7 @@ image = "0.24.7"    # 处理图像
 lazy_static = "1.4.0"   # 通过宏更方便地初始化静态变量
 lru = "0.12.0"  # lru缓存 
 percent-encoding = "2.3.0"  # url编码/解码
-photon-rs = "0.3.2"     # 图像效果
+photon-rs = "0.3"     # 图像效果
 prost = "0.12.1"    # protobuf
 reqwest = "0.11.22"     # 网络请求
 serde = { version = "1.0.188", features = ["derive"] }  # 序列化/反序列化数据
