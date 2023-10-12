@@ -16,6 +16,7 @@ use anyhow::Result;
 
 // 引入 protobuf 生成的代码
 mod pb;
+mod engine;
 
 // 参数使用 serde 做 Deserialize, axum 会自动识别并解析
 #[derive(Deserialize)]
