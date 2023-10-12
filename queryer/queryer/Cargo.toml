@@ -1,0 +1,18 @@
+[package]
+name = "queryer"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+async-trait = "0.1.73"  # 允许 trait 里有 async fn
+polars = { version = "0.33.2", features = ["json", "lazy"] }    # DataFrame 库
+reqwest = { version = "0.11.22", default-features = false, features = ["rustls-tls"] }
+sqlparser = "0.38.0"    # sql 解析器
+tracing = "0.1.37"  # 日志处理
+
+[dev-dependencies]
+tracing-subscriber = "0.3.0"    # 日志处理 
+tokio = { version = "1.33.0", features = ["full"] }
