@@ -106,9 +106,10 @@ mod tests {
 
     #[test]
     fn encode_spec_cpuld_be_decoded() {
-        let spec1 = Spec::new_resize(600, 600, resize::SampleFilter::Undefined);
-        let spec2 = Spec::new_filter(filter::Filter::Marine);
-        let image_spec = ImageSpec::new(vec![spec1, spec2]);
+        // let spec1 = Spec::new_resize(600, 600, resize::SampleFilter::Undefined);
+        // let spec2 = Spec::new_filter(filter::Filter::Unspecified);
+        let spec3 = Spec::new_watermark(0, 0);
+        let image_spec = ImageSpec::new(vec![spec3]);
         let s: String = image_spec.borrow().into();
         println!("{image_spec:?}");
         println!("{}", s);

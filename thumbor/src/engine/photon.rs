@@ -1,9 +1,10 @@
+use std::io::Cursor;
 use crate::pb::*;
 use super::{Engine, SpecTransform};
 use bytes::Bytes;
 use image::{ImageOutputFormat, ImageBuffer, DynamicImage};
 use lazy_static::lazy_static;
-use photon_rs::{PhotonImage, native::open_image_from_bytes, transform, effects, filters};
+use photon_rs::{PhotonImage, native::open_image_from_bytes, transform, effects, filters, multiple};
 
 lazy_static!{
     // 预先把水印文件加载为静态变量
@@ -32,19 +33,20 @@ impl Engine for Photon{
         for spec in specs.iter() {
             match spec.data {
                 Some(spec::Data::Crop(ref v)) => self.transform(v),
-                Some(spec::Data::Contrast(ref v)) => todo!(),
-                Some(spec::Data::Filter(ref v)) => todo!(),
-                Some(spec::Data::Fliph(ref v)) => todo!(),
-                Some(spec::Data::Flipv(ref v)) => todo!(),
-                Some(spec::Data::Resize(ref v)) => todo!(),
-                Some(spec::Data::Watermark(ref v)) => todo!(),
+                Some(spec::Data::Contrast(ref v)) => self.transform(v),
+                Some(spec::Data::Filter(ref v)) => self.transform(v),
+                Some(spec::Data::Fliph(ref v)) => self.transform(v),
+                Some(spec::Data::Flipv(ref v)) => self.transform(v),
+                Some(spec::Data::Resize(ref v)) => self.transform(v),
+                Some(spec::Data::Watermark(ref v)) => self.transform(v),
+                // 对目前不认识的 spec， 不做任何处理
                 _ => {},
             }
         }
     }
 
     fn generate(self, format: image::ImageOutputFormat) -> Vec<u8> {
-        todo!()
+        image_to_buf(self.0, format)
     }
 }
 
@@ -72,13 +74,13 @@ impl SpecTransform<&Filter> for Photon {
 }
 
 impl SpecTransform<&Flipv> for Photon {
-    fn transform(&mut self, op: &Flipv) {
+    fn transform(&mut self, _op: &Flipv) {
         transform::flipv(&mut self.0)
     }
 }
 
 impl SpecTransform<&Fliph> for Photon {
-    fn transform(&mut self, op: &Fliph) {
+    fn transform(&mut self, _op: &Fliph) {
         transform::fliph(&mut self.0)
     }
 }
@@ -101,6 +103,12 @@ impl SpecTransform<&Resize> for Photon {
     }
 }
 
+impl SpecTransform<&Watermark> for Photon {
+    fn transform(&mut self, op: &Watermark) {
+        multiple::watermark(&mut self.0, &WATERMARK, op.x, op.y);
+    }
+}
+
 // 实现在内存中对图片转换格式的方法
 fn image_to_buf(img: PhotonImage, format: ImageOutputFormat) -> Vec<u8> {
     let raw_pixels = img.get_raw_pixels();
@@ -111,6 +119,6 @@ fn image_to_buf(img: PhotonImage, format: ImageOutputFormat) -> Vec<u8> {
     let dynimage = DynamicImage::ImageLuma8(img_buffer);
 
     let mut buffer = Vec::with_capacity(32768);
-    dynimage.write_to(&mut buffer, format).unwrap();
+    dynimage.write_to(&mut Cursor::new(&mut buffer), format).unwrap();
     buffer
 }
