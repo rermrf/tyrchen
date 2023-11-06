@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
         .infer_schema(Some(16))
         .finish()?;
 
-    let mask = df["new_deaths"].gt(500)?;
+    let mask = df["location"].equal("China")?;
     let filtered = df.filter(&mask)?;
     println!("{:?}", filtered.select(["location", "total_cases", "new_cases", "total_deaths", "new_deaths"])?);
 
