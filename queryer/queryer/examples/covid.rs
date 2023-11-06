@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use anyhow::Result;
-use polars::prelude::{CsvReader, SerReader};
+use polars::{prelude::{CsvReader, SerReader}, series::ChunkCompare};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -15,8 +15,9 @@ async fn main() -> Result<()> {
         .infer_schema(Some(16))
         .finish()?;
 
-    let filtered = df.filter(&df["new_deaths"].gt(500))?;
-    println!("{:?}", filtered.select(["location", "total_cases", "new_cases", "total_deaths", "new_deaths"]));
+    let mask = df["new_deaths"].gt(500)?;
+    let filtered = df.filter(&mask)?;
+    println!("{:?}", filtered.select(["location", "total_cases", "new_cases", "total_deaths", "new_deaths"])?);
 
 
     Ok(())
